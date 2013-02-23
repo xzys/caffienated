@@ -1,0 +1,27 @@
+//how much of joystick movement to ignore
+deadzone = 0.0
+radius = 25
+
+//how much to add to walk
+walk_impulse = .1
+brake_impulse = .2
+
+//how much friction negative, and vel.x when to apply
+skidding = -.01
+skidzone_x = .003
+
+//how much to add to jump
+jump = 4
+midjump = 1
+air_impulse = .05
+max_jump_time = 100000
+
+//max speeds
+max_walk_x = 1000000
+max_air_x = 1000000
+
+//wall x,y to add
+wallride_x = 1
+wallride_y = 3
+walljump_x = 1
+walljump_y = 4
