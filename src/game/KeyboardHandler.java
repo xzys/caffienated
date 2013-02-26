@@ -4,7 +4,7 @@
  */
 package game;
 
-/**
+/** Handles a keyboard combining event driven and polling style
  *
  * @author SACHIN
  */
@@ -36,7 +36,7 @@ public class KeyboardHandler implements ControlHandler, KeyEventDispatcher {
     //keymappings.put(88, new Object[]{controlState.buts[1], true, false});//button 2
     public int[] keymappings;
     public List<Integer> heldKeys;
-    
+    /** Constructor: initializes things*/
     public KeyboardHandler() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
         heldKeys = new ArrayList<>();
@@ -49,8 +49,11 @@ public class KeyboardHandler implements ControlHandler, KeyEventDispatcher {
         keymappings = new int[]{Keys.LEFT, Keys.RIGHT, Keys.UP, Keys.DOWN, Keys.Z, Keys.X};
     }
 
-    
-    //move this to block below so that you can disable jump
+    /** Updates controlstate with information from keymappings.
+     * Unnecessary (maybe) but allows for polling style keyboard response.
+     * Also ignores updating jump all the time b/c we turn it off on a timer
+     */
+    //TODO move this to block below so that you can disable jump
     //don't really need this because it updates via event
     public void update() {
         
@@ -83,7 +86,9 @@ public class KeyboardHandler implements ControlHandler, KeyEventDispatcher {
         }
     }
     */
-    //need to make this schronized
+    
+    //TODO need to make this schronized
+    @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         int kc = e.getKeyCode();
         
@@ -101,6 +106,7 @@ public class KeyboardHandler implements ControlHandler, KeyEventDispatcher {
     }
     
     //need to remove after usage
+    @Override
     public void close() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this);
         connected = false;

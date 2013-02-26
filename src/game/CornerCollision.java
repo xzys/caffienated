@@ -6,7 +6,7 @@ package game;
 
 import com.badlogic.gdx.math.Vector2;
 
-/** collision with a corner of a tile
+/** Collision with a corner of a tile
  *
  * @author SACHIN
  */
@@ -19,7 +19,9 @@ public class CornerCollision extends Collision {
         super(body1, tile);
         this.corner = corner;
     }
-    //only from diagonal tiles
+    /** Only gets the axis that is from corner of tile to the center of circle
+     * @return array of axes to be tested 
+     */
     @Override
     protected Vector2[] generateAxes() {
         //you shouuld need to only test this one axis

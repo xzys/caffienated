@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 
-/**
+/** A physics world that has a tilemap and dynamic bodies.
+ * Has broadphase and narrowphase methods to detect and solve Collisions. 
+ * Uses Pixels for scale.
  *
  * @author SACHIN
  */
@@ -25,7 +27,11 @@ public class World {
     private Vector2 gravity;//static
     //simplify things and make everythin in pixels
     
-    
+    /** Constructor: initializes fields
+     * 
+     * @param width width in pixels
+     * @param height height in pixels
+     */
     public World(float width, float height) {
         this.width = width;
         this.height = height;
@@ -34,7 +40,7 @@ public class World {
         contacts = new ArrayList<Collision>();
         gravity = new Vector2(0, -.01f);
     }
-    
+    /** set gravity*/
     public void setGravity(Vector2 gravity) {
         this.gravity = gravity;
     }
@@ -44,11 +50,12 @@ public class World {
         assert body.dynamic;
         bodies.add(body);
     }
-    
+    /** add tilemap to world*/
     public void add(Tilemap tilemap) {
         this.tilemap = tilemap;
     }
     
+    /** move all dynamic bodies */
     //TODO How to use step???
     public void run(float step) {
         for(Body b : bodies) {
@@ -63,13 +70,15 @@ public class World {
     }
     
     /** collide bodies versus tilemap */
+    //TODO collide other things too later
     public void detect() {
         //BROADPHASE
         //fill arraylist collisions
         //bu before that clear last frames arraylist
         collisions.clear();
         for(Body b : bodies) {
-            //TODO is this right? draw each bodys all contacts
+            //TODO is this right? draw each bodys all contacts?
+            //TODO also right place to do this? earlier or later?
             b.clearContacts();
             if(b instanceof CircularBody) {
                 checkBroadphase(b);
@@ -124,16 +133,17 @@ public class World {
         }
     }*/
     
-    
-    //TODO
+    /** based on velocty, check broadphase every x velocity added so you 
+     * cannot pass through an other objects
+     */
+    //TODO you need to check according to the metanet powerpoints
     private void checkSensitiveBroadphase(Body b) {
-        //you need to check according to the metanet powerpoints
-        //based on velocty, check broadphase every x velocity added so you cannot pass through an other objects
         checkBroadphase(b);
     }
     
-    //assuming all sprites are the size of a tile or less
-    /** checking broadphase by checking 4 tiles around body for tiles and making collisions*/
+    /** checking broadphase by checking 4 tiles around body for tiles and 
+     * making collisions. assuming all sprites are the size of a tile or less.
+     */
     private void checkBroadphase(Body b) {
         //you can calculate current either this way, or by getting pos of tile
         //tliemap.tiles[current.x][current.y].pos.x

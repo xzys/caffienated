@@ -13,19 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-/**
+/** 2D array of tile bodies
  *
  * @author SACHIN
  */
-//implementation that extends body
 public class Tilemap {
     //number of cols (x) and rows (y)
     private int tx;
     private int ty;
     public float tsize;
     
-    //temporary testing background colors
-    //shoul never need this because map is fg.png and bg.png
+    //TODO temporary testing background colors
+    //TODO shoul never need this because map is fg.png and bg.png
     private Color tcolor;    
     boolean initialized;
     //just a reference of input from mapdata without accessing actual tiles
@@ -39,7 +38,11 @@ public class Tilemap {
         this.tcolor = tcolor;
         initialized = false;
     }
-    
+    /** inits tmap reference and also tiles[][]
+     * 
+     * @param world world to add tilemap to 
+     * @param filename filename of mapData
+     */
     public void initialize(World world, String filename) {
         if(!makeReferenceArray(getMapdata(readLines(filename))))
                 System.out.println("failed to make reference array from sequence :" + readLines(filename).get(0));
@@ -47,7 +50,12 @@ public class Tilemap {
                 System.out.println("failed to make tile bodies");
         initialized = true;
     }
-    
+    /** gets the first rows*cols characters from lines.
+     * 
+     * @param lines of mapData file
+     * @return mapData
+     */
+    //TODO fix spec here
     private String getMapdata(List<String> lines) {
         String mapdata = "";
         //go through all lines and characters in each line
@@ -65,7 +73,7 @@ public class Tilemap {
         if(mapdata.length() == tx*ty) return mapdata;
         else return null;
     }
-    
+    /** reads lines from filename */
     private static List<String> readLines(String filename) {
         List<String> lines;
         try {
@@ -77,7 +85,7 @@ public class Tilemap {
         }
         
     }
-    
+    /** checks if tile x and y are inside the dimensions of tilemap*/
     public boolean isValidTile(int x, int y) {
         return x >= 0 && x < tx && y >= 0 && y < ty;
     }
@@ -90,7 +98,7 @@ public class Tilemap {
     }
     */
     
-    //mapdata is all on one line
+    /** creates char[][] tmap from mapData */
     public boolean makeReferenceArray(String mapdata) {
         System.out.println("Creating Tile reference array.");
         if(ty*tx != mapdata.length()) {
@@ -107,7 +115,7 @@ public class Tilemap {
         System.out.println("Tile reference array created.");
         return true;
     }
-    
+    /** makes Tile[][] tiles from char[][] tmap*/
     public boolean makeTileBodies(World world) {
         System.out.println("Creating Tile bodies.");
         tiles = new Tile[tx][ty];
@@ -129,8 +137,7 @@ public class Tilemap {
         return true;
     }
     
-    
-    //for libgdx
+    /** render tilemap using shpren*/
     public void render(ShapeRenderer g) {
         for(int x=0;x < tx;x++) {
             for(int y=0;y< ty;y++) {
@@ -198,7 +205,8 @@ public class Tilemap {
         }
         g.endDraw(); 
     }*/
-    
+    /** converts char of mapData to Tile.Type*/
+    //TODO combine the reference array and tiles maybe?
     public Tile.Type getTIleTypeFromChar(char c) {
         switch(c) {
             case '0':

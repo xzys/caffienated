@@ -4,18 +4,16 @@
  */
 package game;
 
-/**a
- *
- * @author SACHIN
- */
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import java.util.HashMap;
 import java.util.Map;
 
 
-//public class Character {//model
+/** Physics/state model of character
+ *
+ * @author SACHIN
+ */
 public class Sprite extends CircularBody {
     //this.getClass() = name; of actual Character
     //these are all pubic because they are needed for animation with Animator
@@ -48,7 +46,11 @@ public class Sprite extends CircularBody {
     private static final int RUNNING = 3;
     private static final int SKIDDING = 4;
     private static final int WALLRIDING = 5;
-    
+    /** Constructor: initializes sprite
+     * 
+     * @param player circular reference to the player this sprite belongs to
+     * @param consts HashMap of consts for movement, etc
+     */
     public Sprite(Player player, HashMap<String, Float> consts) {
         super(true);
         //make sure there is a folder in the current directory with this name
@@ -64,14 +66,8 @@ public class Sprite extends CircularBody {
         translate(400, 300);
     }
     
-    public void setConsts() {
-        this.consts = consts;
-    }
-    //gets controls
-    public void run(ControlState cs) {
-        processState(cs);
-    }
-    
+    /** corrects the direction sprite is facing based on vel*/
+    //TODO magic numbers
     public void checkDirection() {
         //facing correct direction
         //some leeway
@@ -79,7 +75,9 @@ public class Sprite extends CircularBody {
         if(vel.x > .01) direction = 1;
     }
     
-    //make sure this works
+    /** processes and changes state based on the controlState*/
+    //TODO always make sure this works properly
+    //TODO properly comment/refactor if necessary
     public void processState(ControlState cs) {
         //catch errors
         if(state < 0 || state > 5) {
@@ -349,19 +347,25 @@ public class Sprite extends CircularBody {
         }
     }
     
-    //returns angle to ground
-    //if not standing, returns 1, because ground should be 
+    /** checks if sprite is touching ground 
+     * 
+     * @return angle to ground, if not standing, returns 1
+     */
     public float touchingGround() {
         float standing = 1;//deault, not touching ground
         for(Collision ce : contacts) {
             //below x axis, negative
-            double angle = angleToContact(ce);
-            if(angle < -.01 && angle > -1*Math.PI+.01) standing = (float)angle;
+            float angle = angleToContact(ce);
+            if(angle < -.01 && angle > -1*Math.PI+.01) standing = angle;
             
         }
         return standing; 
     }
     
+    /** checks if sprite is touching a vertical side wall
+     * 
+     * @return 1 if right wall, -1 if left wall, 0 if not touching
+     */
     public int touchingSide() {
         //contacts from body that you are extending
         for(Collision ce : contacts) {
@@ -372,13 +376,18 @@ public class Sprite extends CircularBody {
         }
         return 0;
     }
-    
-    public double angleToContact(Collision cp) {
-        return Math.atan2(cp.body2.pos.y - pos.y, cp.body2.pos.x - pos.x);
+    /** finds angle to center other tile
+     * 
+     * @param c collision
+     * @return angle to contact
+     */
+    //TODO bad logic, angle to other center of tile not always true
+    //have to check edge or corners or maybe normal
+    public float angleToContact(Collision c) {
+        return (float)Math.atan2(c.body2.pos.y - pos.y, c.body2.pos.x - pos.x);
     }
     
-    
-    //currently wallriding or able to wallride because body is touching side
+    /** changes state and updates lastStateChange and stateTime*/
     public void setState(int s) {
         System.out.println("set state from " + state + " to " + s);
         state = s;

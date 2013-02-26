@@ -4,11 +4,12 @@
  */
 package game;
 
-/**
+/** Point based projectile body
  *
  * @author SACHIN
  */
-public class Projectile extends Body {
+//TODO everything
+public class Projectile extends Particle {
     public Projectile (boolean circular, boolean dynamic) {
         super(dynamic);
     }

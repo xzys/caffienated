@@ -3,20 +3,19 @@
  * and open the template in the editor.
  */
 package game;
-
-/**
- *
- * @author SACHIN
- */
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import java.util.ArrayList;
 import java.util.List;
-
+//TODO no close method?
+/** A keyboard handler to be used with libgdx. 
+ * //TODO Libgdx already replaces the keyboardFocus manger I think.
+ *
+ * @author SACHIN
+ */
 public class GdxKeyboardHandler implements ControlHandler, InputProcessor {
-    //errors mean this is working
+    //TODO errors mean this is working??
     //but if they are already initialized can you just delete these 
     //controlstate contains all controls to be used in the game
     public ControlState controlState;
@@ -25,7 +24,7 @@ public class GdxKeyboardHandler implements ControlHandler, InputProcessor {
     public List<Integer> heldKeys;
     
     public GdxKeyboardHandler() {
-        //replacing the keyboardFocus manger I guess
+        //
         Gdx.input.setInputProcessor(this);
         heldKeys = new ArrayList<>();
         connected = true;
@@ -33,7 +32,10 @@ public class GdxKeyboardHandler implements ControlHandler, InputProcessor {
         keymappings = new int[]{Keys.LEFT, Keys.RIGHT, Keys.UP, Keys.DOWN, Keys.Z, Keys.X};
     }
     
-    //this class specificlaly implements not auto jumping
+    /** Updates controlstate with information from keymappings.
+     * Unnecessary (maybe) but allows for polling style keyboard response.
+     * Also ignores updating jump all the time b/c we turn it off on a timer
+     */
     public void update() {
         if(heldKeys.contains(keymappings[0])) controlState.joys[0] = -100;
         else if(heldKeys.contains(keymappings[1])) controlState.joys[0] = 100;
@@ -43,7 +45,7 @@ public class GdxKeyboardHandler implements ControlHandler, InputProcessor {
         else if(heldKeys.contains(keymappings[3])) controlState.joys[1] = 100;
         else controlState.joys[1] = 0;
         
-        //update this elseware because we are gonna play with it a little
+        //TODO update this elseware because we are gonna play with it a little
         //we change the button in sprite processState()
         //only change button if you actually press it
         //move this to keyDown/keyUp methods

@@ -17,9 +17,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import java.util.Arrays;
-
-//later you ahve to change this and make this not dependent on 
-
+/** Test the game and features before moving on to actual 
+ * 
+ * @author SACHIN
+ */
 public class Test_Game extends ApplicationAdapter {
     private static final int width = 800;
     private static final int height = 600;

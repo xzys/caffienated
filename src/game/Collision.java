@@ -26,6 +26,11 @@ public class Collision {
     boolean colliding;
     boolean willCollide;
     
+    /** Constructor creates collision.
+     * 
+     * @param body1 usually the dynamic body
+     * @param body2 usually tile for the most part, but can handle all other types
+     */
     public Collision(Body body1, Body body2) {
         this.body1 = body1;
         this.body2 = body2;
@@ -37,7 +42,7 @@ public class Collision {
     }
     
     
-    /** Decide the axes the need to be tested for SAT.
+    /** Decide which axes the need to be tested for SAT.
      * Preferred that body1 is moving and body2 is static
      * @return array of axes to be tested 
      */
@@ -63,7 +68,9 @@ public class Collision {
         }
         return axes;
     }
-    /** calculate normals for body. expensive, when possible use pre-calculated*/
+    /** calculate normals for body. expensive, when possible use pre-calculated
+     * normals.
+     */
     protected Vector2[] getNormals(Body body) {
         if(body instanceof PolygonBody) {
             //you need as many axes as there are vertexes in body

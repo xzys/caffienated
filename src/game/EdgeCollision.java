@@ -5,25 +5,26 @@
 package game;
 
 import com.badlogic.gdx.math.Vector2;
-
-/**
+//TODO formatting
+/** Collision with a solid horizontal or vertical edge. 
+ * Basically a circle versus aabb box where you know the edge to test.
+ * If in the edge region of a tile this should pick it up.
+ * l, d, r, u = 0,1,2,3.
+ * this is a good design choice because they reflect the information already stored in Tile
  *
  * @author SACHIN
  */
-//collision with more information
-//this is a collision witha flat horizontal or vertical edge of a tile
 public class EdgeCollision extends Collision {
     int edge;
     public EdgeCollision(Body body1, Body tile, int edge) {
-        //some way to make sure that tile is actaulyl a tile and not some other object
+        //TODO some way to make sure that tile is actaulyl a tile and not some other object
         super(body1, tile);
-        //l, d, r, u = 0,1,2,3
-        //this is a good design choie because they reflect the information already stored in Tile
         this.edge = edge;
     }
-    //basically a circle versus aabb box
-    //also you already know the edge to test
-    //if in the edge region of a polygon this should pick it up
+    /** Returns the axis in the direction of the tile's edge
+     * 
+     * @return array of axes to be tested 
+     */
     @Override
     protected Vector2[] generateAxes() {
         //you shouuld need to only test this one axis

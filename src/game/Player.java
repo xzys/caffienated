@@ -4,7 +4,8 @@
  */
 package game;
 
-/**
+/** Serves as a linkage between the model (sprite), view (Animator), 
+ * and Controller (ControlHandler).
  *
  * @author SACHIN
  */
@@ -19,10 +20,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
-
-////////////////////////////////////////////////////////////////////////////////////    PLAYER
-
-//this serves as a linkage between the control and the sprite, which is the real model part
 public class Player {//
     public String plname;
     public int plnum;
@@ -44,7 +41,11 @@ public class Player {//
         control = new GdxKeyboardHandler();
     }
     
-    
+    /** Gets character constants from file.
+     * 
+     * @param filename consts filename
+     * @return constants HashMap<name, number>
+     */
     private HashMap<String, Float> importConsts(String filename) {
         HashMap<String, Float> hashmap = new HashMap<>();
         try {
@@ -61,18 +62,20 @@ public class Player {//
         return hashmap;
     }
     
+    /** process Sprite.state with current controlState */
     public void run() {
         //polling or event based?
         //control.update();
         
         //pass sprite controls
-        sprite.run(control.getControlState());
+        sprite.processState(control.getControlState());
     }
+    /** renders the sprite with Animator*/
     public void render(SpriteBatch batch) {
         animator.render(batch, sprite.pos, sprite.state, -1* sprite.direction, (float)sprite.stateTime*80, 50);
         //animator.render(batch, ptwtrans.sum(sprite.pos), 0, -1* sprite.direction, (float)sprite.stateTime, 45);
     }
-    
+    /** simple rendering where colors represnet different sprite states*/
     public void render_debug(ShapeRenderer g) {
         g.begin(ShapeRenderer.ShapeType.FilledCircle);
         g.setColor(sprite.state/5f, sprite.state/5f, sprite.state/5f, .1f);

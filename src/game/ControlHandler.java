@@ -4,12 +4,10 @@
  */
 package game;
 
-/**
+/** Interface for different controller objects, such as keyboard, gamepad etc.
  *
  * @author SACHIN
  */
-
-
 public interface ControlHandler { 
     public ControlState controlState = new ControlState();
     public boolean connected = false;

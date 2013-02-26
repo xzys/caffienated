@@ -3,13 +3,6 @@
  * and open the template in the editor.
  */
 package game;
-
-/**
- *
- * @author SACHIN
- */
-//exactly from http://theuzo007.wordpress.com/2012/09/02/joystick-in-java-with-jinput/
-//imports moved to main class because processing
 import java.util.ArrayList;
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;

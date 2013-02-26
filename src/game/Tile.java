@@ -6,13 +6,15 @@ package game;
 
 import com.badlogic.gdx.math.Vector2;
 
-/**
+/** Tile in TIlemap
  *
  * @author SACHIN
  */
 
 public class Tile extends PolygonBody {
-    //all the different types of tiles that exist//all the different types of tiles that exist
+    /** all the different types of tiles that exist
+     */
+    //TODO is this all the info you need?
     public static enum Type {
         //EMPTY TILE should be null
         EMPTY          (new Vector2[0], 
@@ -122,7 +124,7 @@ public class Tile extends PolygonBody {
         TL_QUAD_TL,
         TL_QUAD_TR;
         
-        public final Vector2[] vertexes;
+        public final Vector2[] vertexes;//NOT POLYGONBODY's just this guys set
         //l,d,r,u order
         //0 is none, 1 is solid, 2 is interesting
         public final int[] edges;
@@ -135,18 +137,23 @@ public class Tile extends PolygonBody {
         private Type(Vector2[] vertexes, int[] edges, Vector2 normal) {
             this.vertexes = vertexes;
             this.edges = edges;
-            this.normal = normal;
+            this.normal = normal.nor();
         }
     
     };         
     
-    Tile.Type type;
+    Tile.Type type;//Tlle has a Tile.Type
     int[] edges;//not implemented yet
     //vertexes belongs to polygonBody
     //this is the normal to the one angled tile there is
     private Vector2 normal;
-    
-    Tile(Tile.Type type, float tsize) {
+    /** Constructor: initializes tile object with Tile.Type info
+     * 
+     * @param type Tile.Type of this tile
+     * @param tsize size of tile to expand vertexes by
+     */
+    //TODO replaces all vertices with vertexes even though it's ba spelling
+    public Tile(Tile.Type type, float tsize) {
         super(false, type.vertexes);
         this.type = type;
         this.edges = type.edges;
@@ -158,10 +165,10 @@ public class Tile extends PolygonBody {
             //System.out.println(sizedVertexes[i]);
         }
         this.vertexes = sizedVertexes;
-        
         this.normal = type.normal.nor();
     }
-    
+    /** calculate the normal of the odd side*/
+    //TODO handle Tile.FULL here
     private void calculateNormal() {
         this.normal = new Vector2(0, 0);
         for(int i = 0;i < type.vertexes.length;i++) {
@@ -175,9 +182,11 @@ public class Tile extends PolygonBody {
             }
         }
     }
-    
+    /** return the odd normal*/
+    //TODO you dont need to store normal!!! if you normalize before hand
     public Vector2 getNormal() {
         return normal;
+        //return type.normal
     }
 }
 

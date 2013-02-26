@@ -11,7 +11,10 @@ package game;
 
 import java.util.Map;
 import net.java.games.input.Controller;
-//implementation of ControlHandler
+/** Controller object for gamepads, uses JInput and JINputJoystick
+ * 
+ * @author SACHIN
+ */
 public class ControllerHandler implements ControlHandler {
     //Vector2 LeftJoystick;
     //Vector2 RightJoystick;
@@ -23,7 +26,7 @@ public class ControllerHandler implements ControlHandler {
     
     //has gamepad, which has controller actually
     private JInputJoystick gamepad;
-    
+    /** Constructor: makes sure that controller is connected */
     public ControllerHandler() {//also take in key bindings
         //initilaize gamepad
         
@@ -32,6 +35,7 @@ public class ControllerHandler implements ControlHandler {
         gamepad = new JInputJoystick(Controller.Type.GAMEPAD, Controller.Type.STICK);
         
         //what to do if Joystick not found
+        //TODO error handling, throw an exception!
         if( !gamepad.isControllerConnected() ){
             System.out.println("No controller found! Replace with Keyboard and Mouse controls.");
             connected = false;
@@ -46,7 +50,8 @@ public class ControllerHandler implements ControlHandler {
         
     }
     
-    //JInput stuff here
+    /** Gets input information from JInputJoyStick*/
+    //TODO everything here
     public void update() {
         if( !gamepad.pollController() ) {
             System.out.println("Error: Controller disconnected!");
@@ -109,7 +114,7 @@ public class ControllerHandler implements ControlHandler {
     }
     
     public void close() {
-        
+        //TODO close connection to gamepad
     }
     
     public ControlState getControlState() { return controlState; }

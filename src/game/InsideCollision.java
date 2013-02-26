@@ -7,22 +7,32 @@ package game;
 import com.badlogic.gdx.math.Vector2;
 
 
-/* Class meant to test a case when a sprite is inside a tile and colliding it
+/* Class meant to test a case when a sprite is inside a tile and colliding it.
  * 
  */
 public class InsideCollision extends Collision {
-    
+    /** Constructor:
+     * 
+     * @param body1 dynamic body
+     * @param tile the tile it is inside
+     */
     public InsideCollision(Body body1, Body tile) {
+        //TODO assert tile instanceof Tile;
         super(body1, tile);
         //assuming that we are only solcing collisions between spirte/particle and tilemap
         assert body1 instanceof Sprite && body2 instanceof Tile : 
                "you are colliding " + body1.getClass().getName() + " and " + body2.getClass().getName(); 
     }
-
+    /** If this is a rectangular Tlie.FUll then test axes, otherwise, it has to
+     * be a triangular tile and only test the hypotenuse normal
+     * 
+     * @return array of aces to be tested
+     */
     @Override
     protected Vector2[] generateAxes() {
         //you have to catch the exception if this is not true
         //just a reference
+        //TODO can you get rid of this? maybe with assert?
         Tile tile = (Tile)body2;
         //doesn't really have a normal
         if(tile.type == Tile.Type.FULL) {

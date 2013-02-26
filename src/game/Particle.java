@@ -4,13 +4,14 @@
  */
 package game;
 
-/**
+/** A point body
  *
  * @author SACHIN
  */
 //movable or not?? can be both?
+//TODO all of this class
 public class Particle extends Body {
-    public Particle (boolean circular, boolean dynamic) {
+    public Particle (boolean dynamic) {
         super(dynamic);
     }
 }
