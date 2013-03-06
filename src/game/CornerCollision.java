@@ -14,9 +14,9 @@ import com.badlogic.gdx.math.Vector2;
 public class CornerCollision extends Collision {
     Vector2 corner;
     
-    public CornerCollision(Body body1, Body tile, Vector2 corner) {
+    public CornerCollision(Body body1, Body body2, Vector2 corner) {
         //amke sure tha ttole is actually a tile
-        super(body1, tile);
+        super(body1, body2);
         this.corner = corner;
     }
     /** Only gets the axis that is from corner of tile to the center of circle

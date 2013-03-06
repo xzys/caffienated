@@ -105,11 +105,10 @@ public class Collision {
             float[] body2Interval = projectBody(axis, body2);
             
             float interval = intervalDistance(body1Interval[0], body1Interval[1], body2Interval[0], body2Interval[1]);
+            //reaplced by BoundsCollision, basically to check inside the body or ourside?
+            colliding = checkInterval(interval);
             
-            if(interval > 0)
-                colliding = false;
-            
-            //will this collide when you add velocity??
+            /* ---------will this collide when you add velocity??---------- */
             // Project the velocity on the current axis
             float velocityProjection = axis.dot(body1.vel);
             
@@ -118,8 +117,7 @@ public class Collision {
             body1Interval[1] += velocityProjection;
             
             interval = intervalDistance(body1Interval[0], body1Interval[1], body2Interval[0], body2Interval[1]);
-            if(interval > 0)
-                willCollide = false;
+            willCollide = checkInterval(interval);
             
             //If the polygons are not intersecting and won't intersect, exit the loop
             if(!colliding && !willCollide) 
@@ -142,6 +140,11 @@ public class Collision {
         solved = true;
     }
     
+    /** this is only here to be replaced by boundsCollision*/
+    protected boolean checkInterval(float interval) {
+        return interval < 0;
+    }
+    
     /** resolves the collision using minimum translation vector*/
     public void resolve() {
         //TODO in world process, do you keep collisiosn even though you know they do not collde?
@@ -157,14 +160,16 @@ public class Collision {
                 sprite = body1;
 
             Vector2 response = normal.cpy().mul(depth);
-            //bounce is along normal
+            /*//bounce is along normal
             Vector2 bounce = new Vector2(normal.x, normal.y).mul(-sprite.vel.dot(new Vector2(normal.x, normal.y)));
             bounce.mul(bounceAmount);
             //projection on to the other perpendicular vector
             Vector2 friction = new Vector2(-normal.y, normal.x).mul(sprite.vel.dot(new Vector2(-normal.y, normal.x)));
             friction.mul(frictionAmount);
-            //this is all you need
+            */
+            //this is all you need?
             sprite.vel.add(response);
+            //sprite.vel.add(friction);
         }
     }
     
@@ -193,6 +198,7 @@ public class Collision {
     public static float[] projectPolygon(Vector2 axis, Vector2 pos, Vector2[] vertexes) {
         float[] result;
         //TODO delete these optimizations. they don't work like expected
+        //Or replace them by looking closely at what .dot() does and replicating it
         /*
         //if axis is horizontal optimization
         if(axis.y == 0) {
@@ -237,7 +243,7 @@ public class Collision {
     /** Calculate the distance between [minA, maxA] and [minB, maxB].
      * The distance will be negative if the intervals overlap 
      */
-    public float intervalDistance(float minA, float maxA, float minB, float maxB) {
+    public static float intervalDistance(float minA, float maxA, float minB, float maxB) {
         if (minA < minB) {
             return minB - maxA;
         } else {
@@ -248,7 +254,7 @@ public class Collision {
     /** inside polygon?
      * fast helper function from http://processing.org/discourse/yabb2/YaBB.pl?board=Programs;action=display;num=1189178826
      */
-    public boolean insidePoly(float x, float y, Vector2[] p){
+    public static boolean insidePoly(float x, float y, Vector2[] p){
       int i, j, c = 0;
       for (i = 0, j = p.length-1; i < p.length; j = i++) {
         if ((((p[i].y <= y) && (y < p[j].y)) ||
@@ -261,14 +267,14 @@ public class Collision {
     /** if points are closer than length?
      * fast helper function from http://processing.org/discourse/yabb2/YaBB.pl?board=Programs;action=display;num=1189178826
      */
-    public boolean proximity(float x0, float y0, float x1, float y1, float len){
+    public static boolean proximity(float x0, float y0, float x1, float y1, float len){
       return (x1-x0)*(x1-x0)+(y1-y0)*(y1-y0) <= len*len;
     }
 
     /** two circles overlap?
      * fast helper function from http://processing.org/discourse/yabb2/YaBB.pl?board=Programs;action=display;num=1189178826
      */
-    public boolean circleOverlap(float x0, float y0, float r0, float x1, float y1, float r1){
+    public static boolean circleOverlap(float x0, float y0, float r0, float x1, float y1, float r1){
       return (x1-x0)*(x1-x0)+(y1-y0)*(y1-y0) <= (r0+r1)*(r0+r1);
     }
     

@@ -109,7 +109,7 @@ public class Tilemap {
         tmap = new char[tx][ty];
         for(int i=0;i < mapdata.length();i++) {
             //ERROR PRONE
-            tmap[i%tx][i/tx] = mapdata.charAt(i);
+            tmap[i%tx][ty-(i/tx)-1] = mapdata.charAt(i);
             //System.out.println(i + " " + i%tx + " " + i/tx);
         }
         System.out.println("Tile reference array created.");

@@ -58,7 +58,7 @@ public class GdxKeyboardHandler implements ControlHandler, InputProcessor {
     @Override
     public boolean keyDown (int keycode) {
         heldKeys.add(keycode);
-        System.out.println(keycode);
+        //System.out.println(keycode);
         update();
         if(keycode == keymappings[4]) controlState.buts[0] = true;
         return true;

@@ -5,31 +5,29 @@
 package game;
 
 import com.badlogic.gdx.math.Vector2;
-//TODO formatting
-/** Collision with a solid horizontal or vertical edge. 
- * Basically a circle versus aabb box where you know the edge to test.
- * If in the edge region of a tile this should pick it up.
- * l, d, r, u = 0,1,2,3.
- * this is a good design choice because they reflect the information already stored in Tile
+
+/** A hacky Collision between a body and the bounds box
  *
  * @author SACHIN
  */
-public class EdgeCollision extends Collision {
+public class BoundsCollision extends Collision {
     int edge;
-    public EdgeCollision(Body body1, Body body2, int edge) {
+    public BoundsCollision(Body body1, Body body2, int edge) {
         //TODO some way to make sure that tile is actaulyl a tile and not some other object
         super(body1, body2);
         this.edge = edge;
     }
-    /** Returns the axis in the direction of the tile's edge
-     * 
-     * @return array of axes to be tested 
+
+    /**
+     * Returns the axis in the direction of the tile's edge
+     * same as edge collision
+     * @return array of axes to be tested
      */
     @Override
     protected Vector2[] generateAxes() {
         //you shouuld need to only test this one axis
         //axes = new Vector2[]{(edge == 1 || edge == 3) ? new Vector2(1, 0) : new Vector2(0, 1)};
-        switch(edge) {
+        switch (edge) {
             case 0:
                 return axes = new Vector2[]{new Vector2(-1, 0)};
             case 1:
@@ -41,5 +39,14 @@ public class EdgeCollision extends Collision {
             default:
                 return axes = null;
         }
+    }
+    
+    /** because bounds collsions are weird, they are colliding if the box is 
+     * outside the bounds box, you have to account for this
+     */
+    /** this is only here to be replaced by boundsCollision*/
+    @Override
+    protected boolean checkInterval(float interval) {
+        return interval > 0;
     }
 }

@@ -3,8 +3,8 @@ deadzone = 0.0
 radius = 25
 
 //how much to add to walk
-walk_impulse = .1
-brake_impulse = .2
+walk_impulse = .2
+brake_impulse = .4
 
 //how much friction negative, and vel.x when to apply
 skidding = -.01
@@ -12,7 +12,7 @@ skidzone_x = .003
 
 //how much to add to jump
 jump = 4
-midjump = 1
+midjump = 0
 air_impulse = .05
 max_jump_time = 100000
 

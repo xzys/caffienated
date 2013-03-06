@@ -69,7 +69,9 @@ public class Test_Game extends ApplicationAdapter {
         
         //players = new Player[]{new Player("pl1", 1, 0, 0, world),new Player("pl2", 1, 0, 0, world)};
         players = new Player[]{new Player("pl1", 1, 0, 0, world)};
-        //players = new Player[0];
+        
+        players[0].sprite.translate(400, 75);
+        players[0].sprite.vel.add(0, -10);
 
         state = 0;
     }
@@ -81,10 +83,14 @@ public class Test_Game extends ApplicationAdapter {
                 long diff = System.nanoTime() - last;
                 last = System.nanoTime();
                 //update physics world
-                world.run(diff * 0.000000001f);
                 world.detect();
+                
+                if(world.collisions.size() > 0) {
+                    System.out.print("c");
+                }
+                
                 world.solve();
-                if(players[0].sprite.contacts.size() > 0) players[0].sprite.contacts.get(0).resolve();
+                world.run(diff * 0.000000001f);
                 
                 //update players this is movement not collision detection
                 for(Player player : players) player.run();
@@ -103,13 +109,13 @@ public class Test_Game extends ApplicationAdapter {
                 world.renderCollisions(shpren);
                 for(Player player : players) {
                     player.render_debug(shpren);
-                    player.render(batch);
+                    //player.render(batch);
                 }
                 Gdx.gl.glDisable(GL10.GL_BLEND);
                 
                 
                 //System.out.println((System.nanoTime() - last));
-                System.out.println(players[0].sprite.touchingGround());
+                //System.out.println(players[0].sprite.touchingGround());
                 
         }
     }

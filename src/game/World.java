@@ -21,10 +21,11 @@ public class World {
     //all the collision you need to test
     //maybe make this a queue or something 
     public ArrayList<Collision> collisions;
-    private ArrayList<Collision> contacts;
+    //private ArrayList<Collision> contacts;//TODO not using, not needed?
     public float width;
     public float height;
-    private Vector2 gravity;//static
+    private Vector2 gravity;
+    private Body bounds;
     //simplify things and make everythin in pixels
     
     /** Constructor: initializes fields
@@ -37,8 +38,15 @@ public class World {
         this.height = height;
         bodies = new ArrayList<Body>();//TODO choose a good number later
         collisions = new ArrayList<Collision>();
-        contacts = new ArrayList<Collision>();
+        //contacts = new ArrayList<Collision>();
+        //TODO magic number? or just default I guess, put up there
         gravity = new Vector2(0, -.01f);
+        //TODO actually use this and use EdgeCollision
+        bounds = new PolygonBody(false, 
+                new Vector2[]{new Vector2(0,0),
+                             new Vector2(0, width),
+                             new Vector2(0, height),
+                             new Vector2(width, height)});
     }
     /** set gravity*/
     public void setGravity(Vector2 gravity) {
@@ -57,6 +65,7 @@ public class World {
     
     /** move all dynamic bodies */
     //TODO How to use step???
+    //make it so that at 60fps, you move 1 units, as it gets slower, change
     public void run(float step) {
         for(Body b : bodies) {
             //sprite vs tiles
@@ -80,6 +89,7 @@ public class World {
             //TODO is this right? draw each bodys all contacts?
             //TODO also right place to do this? earlier or later?
             b.clearContacts();
+            //TODO checkBounds(b);
             if(b instanceof CircularBody) {
                 checkBroadphase(b);
             }    
@@ -111,9 +121,12 @@ public class World {
         for(int i=0;i < collisions.size();i++) {
             Collision c = collisions.get(i);
             c.solve();
+            //only fix future colliding collisions becaue even through they may
+            //be colliding now, it may be fixed in velocity
+            //if(c.willCollide) {
             if(c.colliding || c.willCollide) {
                 c.body1.addContact(c);
-                //c.resolve();
+                c.resolve();
             } else {
                 //remove not colliding
                 //keep for now so you can graph them
@@ -123,6 +136,7 @@ public class World {
         }
     }
     
+    //TODO delete later
     /*
     public void resolve() {
         //TODO need to handle resting contacts better, at least test them
@@ -285,6 +299,22 @@ public class World {
             }
             
         }
+    }
+    
+    /** this method the body to see if it;s inside the bounds*/
+    private void checkBounds(Body b) {
+        //use EdgeCollisions here to check bounds
+        //TODO no need to add collisions unless the thing in question is close to edge
+        //do edge collision but check outside of box and also opposite axes
+        if(b.pos.x*2 < width)
+            collisions.add(new EdgeCollision(b, bounds, 1));
+        else
+            collisions.add(new EdgeCollision(b, bounds, 0));
+        
+        if(b.pos.y*2 < height)
+            collisions.add(new EdgeCollision(b, bounds, 3));
+        else
+            collisions.add(new EdgeCollision(b, bounds, 2));
     }
     
 }

@@ -63,7 +63,6 @@ public class Sprite extends CircularBody {
         consts.put("max_air_x", Float.MAX_VALUE);
         setRadius(consts.get("radius"));
         translateToOrigin();
-        translate(400, 300);
     }
     
     /** corrects the direction sprite is facing based on vel*/
@@ -80,9 +79,10 @@ public class Sprite extends CircularBody {
     //TODO properly comment/refactor if necessary
     public void processState(ControlState cs) {
         //catch errors
+        
         if(state < 0 || state > 5) {
-            System.out.println(player.plname + ": state ouf of bounds.");
-            setState(STANDING);
+            throw new RuntimeException();
+            //setState(STANDING);
         }
         
         float touchingGround;
@@ -389,7 +389,7 @@ public class Sprite extends CircularBody {
     
     /** changes state and updates lastStateChange and stateTime*/
     public void setState(int s) {
-        System.out.println("set state from " + state + " to " + s);
+        //System.out.println("set state from " + state + " to " + s);
         state = s;
         lastStateChange = System.nanoTime();
         stateTime = 0;
