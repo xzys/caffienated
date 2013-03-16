@@ -120,7 +120,8 @@ public class Collision {
             willCollide = checkInterval(interval);
             
             //If the polygons are not intersecting and won't intersect, exit the loop
-            if(!colliding && !willCollide) 
+            //if(!colliding && !willCollide)
+            if(!willCollide) 
                 break;
             
             // Check if the current interval distance is the minimum one. If so store
@@ -153,23 +154,21 @@ public class Collision {
             //System.out.println(this.getClass().getName());
 
             //move sprite out of collision
-            Body sprite;
-            if(body1 instanceof Tile) 
-                sprite = body2;
-            else 
-                sprite = body1;
-
+            
+            assert normal.equals(normal.nor());
+            
             Vector2 response = normal.cpy().mul(depth);
             /*//bounce is along normal
-            Vector2 bounce = new Vector2(normal.x, normal.y).mul(-sprite.vel.dot(new Vector2(normal.x, normal.y)));
+            Vector2 bounce = new Vector2(normal.x, normal.y).mul(body1.vel.dot(new Vector2(normal.x, normal.y)));
             bounce.mul(bounceAmount);
             //projection on to the other perpendicular vector
-            Vector2 friction = new Vector2(-normal.y, normal.x).mul(sprite.vel.dot(new Vector2(-normal.y, normal.x)));
+            Vector2 friction = new Vector2(-normal.y, normal.x).mul(-body1.vel.dot(new Vector2(-normal.y, normal.x)));
             friction.mul(frictionAmount);
             */
             //this is all you need?
-            sprite.vel.add(response);
-            //sprite.vel.add(friction);
+            body1.vel.add(response);
+            //body1.vel.add(friction);
+            //body1.vel.add(bounce);
         }
     }
     

@@ -70,7 +70,7 @@ public class Test_Game extends ApplicationAdapter {
         //players = new Player[]{new Player("pl1", 1, 0, 0, world),new Player("pl2", 1, 0, 0, world)};
         players = new Player[]{new Player("pl1", 1, 0, 0, world)};
         
-        players[0].sprite.translate(400, 75);
+        players[0].sprite.translate(400, 100);
         players[0].sprite.vel.add(0, -10);
 
         state = 0;
@@ -86,8 +86,9 @@ public class Test_Game extends ApplicationAdapter {
                 world.detect();
                 
                 if(world.collisions.size() > 0) {
-                    System.out.print("c");
+                    //System.out.print("c");
                 }
+                
                 
                 world.solve();
                 world.run(diff * 0.000000001f);

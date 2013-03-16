@@ -89,7 +89,7 @@ public class World {
             //TODO is this right? draw each bodys all contacts?
             //TODO also right place to do this? earlier or later?
             b.clearContacts();
-            //TODO checkBounds(b);
+            checkBounds(b);
             if(b instanceof CircularBody) {
                 checkBroadphase(b);
             }    
@@ -121,6 +121,8 @@ public class World {
         for(int i=0;i < collisions.size();i++) {
             Collision c = collisions.get(i);
             c.solve();
+            if(c.colliding) System.out.println("Colliding " + System.nanoTime());
+            
             //only fix future colliding collisions becaue even through they may
             //be colliding now, it may be fixed in velocity
             //if(c.willCollide) {
@@ -162,9 +164,10 @@ public class World {
         //you can calculate current either this way, or by getting pos of tile
         //tliemap.tiles[current.x][current.y].pos.x
         //quadrant is either -1/1 in both x and y axes
-        Vector2 current = new Vector2((int) (b.pos.x/tilemap.tsize), (int) (b.pos.y/tilemap.tsize));
-        Vector2 quadrant = new Vector2((b.pos.x - current.x*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1,
-                                       (b.pos.y - current.y*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1);
+        Vector2 fpos = b.pos.cpy().add(b.vel);
+        Vector2 current = new Vector2((int) (fpos.x/tilemap.tsize), (int) (fpos.y/tilemap.tsize));
+        Vector2 quadrant = new Vector2((fpos.x - current.x*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1,
+                                       (fpos.y - current.y*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1);
         
         //get tile sprite is in
         //get the 3 other tiles based on what quadrant sprite is in
@@ -266,10 +269,8 @@ public class World {
                     break;
                 case "game.CornerCollision":
                     shpren.setColor(0, 0, 0, 1);
-                    //shpren.filledRect(
-                    
-                    //((CornerCollision)c).corner.x
-                    //((CornerCollision)c).corner.y
+                    shpren.filledRect(c.body2.pos.x + tilemap.tsize*.5f, c.body2.pos.y + tilemap.tsize*.5f,
+                            ((CornerCollision)c).corner.x - 25, ((CornerCollision)c).corner.y - 25);
                     shpren.setColor(0, 0, 1, .5f);
                     break;
                 default:
@@ -307,14 +308,14 @@ public class World {
         //TODO no need to add collisions unless the thing in question is close to edge
         //do edge collision but check outside of box and also opposite axes
         if(b.pos.x*2 < width)
-            collisions.add(new EdgeCollision(b, bounds, 1));
+            collisions.add(new BoundsCollision(b, bounds, 1));
         else
-            collisions.add(new EdgeCollision(b, bounds, 0));
+            collisions.add(new BoundsCollision(b, bounds, 0));
         
         if(b.pos.y*2 < height)
-            collisions.add(new EdgeCollision(b, bounds, 3));
+            collisions.add(new BoundsCollision(b, bounds, 3));
         else
-            collisions.add(new EdgeCollision(b, bounds, 2));
+            collisions.add(new BoundsCollision(b, bounds, 2));
     }
     
 }

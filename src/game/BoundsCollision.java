@@ -11,23 +11,23 @@ import com.badlogic.gdx.math.Vector2;
  * @author SACHIN
  */
 public class BoundsCollision extends Collision {
-    int edge;
-    public BoundsCollision(Body body1, Body body2, int edge) {
+    int bEdge;
+    public BoundsCollision(Body body1, Body body2, int bEdge) {
         //TODO some way to make sure that tile is actaulyl a tile and not some other object
         super(body1, body2);
-        this.edge = edge;
+        this.bEdge = bEdge;
     }
 
     /**
-     * Returns the axis in the direction of the tile's edge
-     * same as edge collision
+     * Returns the axis in the direction of the tile's bEdge
+     * same as bEdge collision
      * @return array of axes to be tested
      */
     @Override
     protected Vector2[] generateAxes() {
         //you shouuld need to only test this one axis
-        //axes = new Vector2[]{(edge == 1 || edge == 3) ? new Vector2(1, 0) : new Vector2(0, 1)};
-        switch (edge) {
+        //axes = new Vector2[]{(bEdge == 1 || bEdge == 3) ? new Vector2(1, 0) : new Vector2(0, 1)};
+        switch (bEdge) {
             case 0:
                 return axes = new Vector2[]{new Vector2(-1, 0)};
             case 1:
