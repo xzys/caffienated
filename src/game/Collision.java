@@ -106,7 +106,8 @@ public class Collision {
             
             float interval = intervalDistance(body1Interval[0], body1Interval[1], body2Interval[0], body2Interval[1]);
             //reaplced by BoundsCollision, basically to check inside the body or ourside?
-            colliding = checkInterval(interval);
+            //colliding = checkInterval(interval);
+            colliding = false;
             
             /* ---------will this collide when you add velocity??---------- */
             // Project the velocity on the current axis
@@ -120,6 +121,7 @@ public class Collision {
             willCollide = checkInterval(interval);
             
             //If the polygons are not intersecting and won't intersect, exit the loop
+            //INGORNING COLLIDING
             //if(!colliding && !willCollide)
             if(!willCollide) 
                 break;

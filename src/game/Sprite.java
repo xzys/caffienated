@@ -84,7 +84,6 @@ public class Sprite extends CircularBody {
             throw new RuntimeException();
             //setState(STANDING);
         }
-        
         float touchingGround;
         
         //if(touchingSide() != 0) System.out.println(touchingSide());
@@ -97,18 +96,15 @@ public class Sprite extends CircularBody {
                 
                 //falling
                 touchingGround = touchingGround();
-                if(touchingGround == 1) setState(MIDAIR);
-                
-                if(touchingGround == 1) rotation = 0;
-                else rotation = (float)(touchingGround + Math.PI * .5f);
-                
+                checkRotation(touchingGround);
                 
                 //jump from standing
                 //if(cs.joys[1] > consts.get("deadzone y")) {//up on joystick
                 if(cs.buts[0]) {//pressing up
                     setState(JUMPING);
                     Vector2 jump = new Vector2((float) Math.cos(touchingGround + Math.PI), (float) Math.sin(touchingGround + Math.PI));
-                    //applyImpulse(jump.multiply(consts.get("jump")));
+                    //TODO correct jump mechanism
+                    //applyImpulse(jump.mul(consts.get("jump")));
                     applyImpulse(new Vector2(0, consts.get("jump")));
                 }
                 
@@ -222,18 +218,16 @@ public class Sprite extends CircularBody {
                 checkDirection();
                 //falling
                 touchingGround = touchingGround();
-                if(touchingGround == 1) setState(MIDAIR);
-                
-                if(touchingGround == 1) rotation = 0;
-                else rotation = (float)(touchingGround + Math.PI * .5f);
+                checkRotation(touchingGround);
                 
                 //jump from standing
                 //if(cs.joys[1] > consts.get("deadzone y")) {//up on joystick
                 if(cs.buts[0]) {//pressing up
                     setState(JUMPING);
                     Vector2 jump = new Vector2((float) Math.cos(touchingGround + Math.PI), (float) Math.sin(touchingGround + Math.PI));
-                    //applyImpulse(jump.multiply(consts.get("jump")));
+                    //applyImpulse(jump.mul(consts.get("jump")));
                     applyImpulse(new Vector2(0, consts.get("jump")));
+                    
                 }
                 
                 //walking, also braking
@@ -273,10 +267,7 @@ public class Sprite extends CircularBody {
                 checkDirection();
                 //falling
                 touchingGround = touchingGround();
-                if(touchingGround == 1) setState(MIDAIR);
-                
-                if(touchingGround == 1) rotation = 0;
-                else rotation = (float)(touchingGround + Math.PI * .5f);
+                checkRotation(touchingGround);
                 
                 //if moving too slow, go to walking
                 if(Math.abs(vel.x) < consts.get("skidzone_x")) {
@@ -288,7 +279,7 @@ public class Sprite extends CircularBody {
                 if(cs.buts[0]) {//pressing up
                     setState(JUMPING);
                     Vector2 jump = new Vector2((float) Math.cos(touchingGround + Math.PI), (float) Math.sin(touchingGround + Math.PI));
-                    //applyImpulse(jump.multiply(consts.get("jump")));
+                    //applyImpulse(jump.mul(consts.get("jump")));
                     applyImpulse(new Vector2(0, consts.get("jump")));
                 }
                 
@@ -347,17 +338,36 @@ public class Sprite extends CircularBody {
         }
     }
     
+    public void checkRotation(float touchingGround) {
+        
+        if(touchingGround == 1) setState(MIDAIR);
+
+        //0 is up
+        if(touchingGround == 1) rotation = 0;
+        else rotation += (float)(touchingGround + Math.PI * .5f);
+        
+    }
+    
+    
     /** checks if sprite is touching ground 
      * 
      * @return angle to ground, if not standing, returns 1
      */
     public float touchingGround() {
-        float standing = 1;//deault, not touching ground
-        for(Collision ce : contacts) {
-            //below x axis, negative
-            float angle = angleToContact(ce);
-            if(angle < -.01 && angle > -1*Math.PI+.01) standing = angle;
-            
+        float standing = 0;//deault, not touching ground
+        if(contacts.size() == 0) {
+            standing = 1;
+        } else {
+            //average all contacts below you
+            //if you're standing on multiple surfaces
+            for(Collision ce : contacts) {
+                //below x axis, negative
+                //TODO magic numbers
+                float angle = angleToContact(ce);
+                if(angle < -.01 && angle > -Math.PI+.01) standing += angle;
+
+            }
+            standing /= contacts.size();
         }
         return standing; 
     }

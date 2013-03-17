@@ -10,6 +10,7 @@ package game;
  * @author SACHIN
  */
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -72,7 +73,7 @@ public class Player {//
     }
     /** renders the sprite with Animator*/
     public void render(SpriteBatch batch) {
-        animator.render(batch, sprite.pos, sprite.state, -1* sprite.direction, (float)sprite.stateTime*80, 50);
+        animator.render(batch, sprite.pos, sprite.state, sprite.direction, sprite.rotation, (float)sprite.stateTime*80, 50);
         //animator.render(batch, ptwtrans.sum(sprite.pos), 0, -1* sprite.direction, (float)sprite.stateTime, 45);
     }
     /** simple rendering where colors represnet different sprite states*/
@@ -84,9 +85,9 @@ public class Player {//
         g.end();
         
         //all lines here
-        //g.begin(ShapeRenderer.ShapeType.Line);
-        //g.setColor(Color.BLACK);
-        //g.line((float) sprite.pos.x, (float) sprite.pos.y, (float) (sprite.pos.x + sprite.vel.x), (float) (sprite.pos.y + sprite.vel.y));
-        //g.end();
+        g.begin(ShapeRenderer.ShapeType.Line);
+        g.setColor(Color.BLACK);
+        g.line((float) sprite.pos.x, (float) sprite.pos.y, (float) (sprite.pos.x + sprite.vel.x*10), (float) (sprite.pos.y + sprite.vel.y*10));
+        g.end();
     }
 }

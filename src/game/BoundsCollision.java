@@ -6,7 +6,7 @@ package game;
 
 import com.badlogic.gdx.math.Vector2;
 
-/** A hacky Collision between a body and the bounds box
+/** An inside out Collision between a body and the bounds box
  *
  * @author SACHIN
  */

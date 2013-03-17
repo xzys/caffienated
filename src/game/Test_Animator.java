@@ -35,7 +35,7 @@ public class Test_Animator extends ApplicationAdapter {
         batch.setColor(new Color(240, 240, 240, 255));
         batch.draw(wp, 0, 0, 800, 600);
         batch.end();
-        animator.render(batch, new Vector2(400, 300), 0, 1, 1, 50);
+        animator.render(batch, new Vector2(400, 300), 0, 1, 0, 1, 50);
         
     }
     

@@ -107,10 +107,10 @@ public class Test_Game extends ApplicationAdapter {
                 Gdx.gl.glEnable(GL10.GL_BLEND);
                 Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
                 tilemap.render(shpren);
-                world.renderCollisions(shpren);
+                //world.renderCollisions(shpren);
                 for(Player player : players) {
                     player.render_debug(shpren);
-                    //player.render(batch);
+                    player.render(batch);
                 }
                 Gdx.gl.glDisable(GL10.GL_BLEND);
                 

@@ -125,8 +125,8 @@ public class World {
             
             //only fix future colliding collisions becaue even through they may
             //be colliding now, it may be fixed in velocity
-            //if(c.willCollide) {
-            if(c.colliding || c.willCollide) {
+            if(c.willCollide) {
+            //if(c.colliding || c.willCollide) {
                 c.body1.addContact(c);
                 c.resolve();
             } else {

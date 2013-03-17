@@ -75,14 +75,22 @@ public class Animator {
      * @param stateTime used to determine which animation frame to use; must be positive
      * @param radius how big to draw
      */
-    public void render(SpriteBatch batch, Vector2 translate, int state, int direction, float stateTime, float radius) 
+    public void render(SpriteBatch batch, Vector2 translate, int state, int direction, float rotation, float stateTime, float radius) 
             throws IllegalArgumentException{
         //load this constant from file too
-        if(stateTime >= 0) currentFrame = animations[state].getKeyFrame(stateTime, true);
-        else throw new IllegalArgumentException();
+        if(stateTime < 0) throw new IllegalArgumentException();
         
+        currentFrame = animations[state].getKeyFrame(stateTime, true);
         batch.begin();
-        batch.draw(currentFrame, (float)(translate.x + -direction*radius*.5), (float)(translate.y - radius*.5) + radius - 50, direction*radius, radius);
+        batch.draw(currentFrame, 
+                (float)(translate.x + direction*radius*.5), (float)(translate.y - radius*.5) + radius - 50,
+                0, 0,
+                -direction*radius, radius,
+                1, 1,
+                -rotation);
+        //batch.draw(currentFrame,
+        //        (float)(translate.x + direction*radius*.5), (float)(translate.y - radius*.5) + radius - 50,
+        //        -direction*radius, radius);
         batch.end();
     }
 }
