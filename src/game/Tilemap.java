@@ -30,6 +30,8 @@ public class Tilemap {
     //just a reference of input from mapdata without accessing actual tiles
     char[][] tmap;
     Tile[][] tiles;
+    //four bounding boxes
+    PolygonBody[] bounds;
     
     Tilemap(int tx, int ty, float tsize, Color tcolor) {
         this.tx = tx;
@@ -43,11 +45,11 @@ public class Tilemap {
      * @param world world to add tilemap to 
      * @param filename filename of mapData
      */
-    public void initialize(World world, String filename) {
-        if(!makeReferenceArray(getMapdata(readLines(filename))))
-                System.out.println("failed to make reference array from sequence :" + readLines(filename).get(0));
-        if(!makeTileBodies(world))
-                System.out.println("failed to make tile bodies");
+    public void initialize(World world, String filename) throws IllegalArgumentException {
+        makeReferenceArray(getMapdata(readLines(filename)));
+        makeTileBodies(world);
+        processTileEdges();
+        
         initialized = true;
     }
     /** gets the first rows*cols characters from lines.
@@ -90,20 +92,11 @@ public class Tilemap {
         return x >= 0 && x < tx && y >= 0 && y < ty;
     }
     
-    
-    //if you are using processing, use this
-    /*public List<String> readLines(String filename) {
-        List<String> lines = Arrays.asList(loadStrings(filename));
-        return lines;
-    }
-    */
-    
     /** creates char[][] tmap from mapData */
-    public boolean makeReferenceArray(String mapdata) {
+    public void makeReferenceArray(String mapdata) throws IllegalArgumentException {
         System.out.println("Creating Tile reference array.");
         if(ty*tx != mapdata.length()) {
-            System.out.println("Error: Tilemap data is formatted incorrectly. Wrong number of tiles detected.");
-            //return false;
+            throw new IllegalArgumentException("Tilemap data is formatted incorrectly. Wrong number of tiles detected.");
         }
         //load chars into tmap
         tmap = new char[tx][ty];
@@ -113,10 +106,9 @@ public class Tilemap {
             //System.out.println(i + " " + i%tx + " " + i/tx);
         }
         System.out.println("Tile reference array created.");
-        return true;
     }
     /** makes Tile[][] tiles from char[][] tmap*/
-    public boolean makeTileBodies(World world) {
+    public void makeTileBodies(World world) {
         System.out.println("Creating Tile bodies.");
         tiles = new Tile[tx][ty];
         for(int x=0;x < tx; x++) {
@@ -134,83 +126,137 @@ public class Tilemap {
         }
         world.add(this);
         System.out.println("Tile bodies array created.");
-        return true;
+        //Make bound bodies
+        //0,1,2,3 is left,down, right, up
+        bounds = new PolygonBody[4];
+        bounds[0] = new PolygonBody(false, new Vector2[]{new Vector2(-tsize,0),
+                                                         new Vector2(0, 0),
+                                                         new Vector2(0, ty*tsize),
+                                                         new Vector2(-tsize, ty*tsize)});
+        bounds[1] = new PolygonBody(false, new Vector2[]{new Vector2(0,-tsize),
+                                                         new Vector2(tx*tsize,-tsize),
+                                                         new Vector2(tx*tsize,0),
+                                                         new Vector2(0,0)});        
+        bounds[2] = new PolygonBody(false, new Vector2[]{new Vector2(tx*tsize,0),
+                                                         new Vector2(tx*tsize+tsize,0),
+                                                         new Vector2(tx*tsize+tsize, ty*tsize),
+                                                         new Vector2(tx*tsize, ty*tsize)});
+        bounds[3] = new PolygonBody(false, new Vector2[]{new Vector2(0,ty*tsize),
+                                                         new Vector2(tx*tsize,ty*tsize),
+                                                         new Vector2(tx*tsize,ty*tsize+tsize),
+                                                         new Vector2(0,ty*tsize+tsize)});
+    }
+    /** Recursively remove unnecessary edges in tilemap. 
+     * 1. two solid edges facing eachother == both empty
+     */
+    private void processTileEdges() {
+        //TODO write more better later
+        for(int x=0;x < tx;x++) {
+            for(int y=0;y< ty;y++) {
+                if(tiles[x][y] == null)
+                    continue;//skip
+                
+                //over all 4 directions
+                for(int addx=-1;addx <= 1;addx+=2) {
+                    if(isValidTile(x+addx, y) &&//valid
+                            tiles[x+addx][y] != null &&//not empty
+                            tiles[x+addx][y].edges[1-addx] == 1 && tiles[x][y].edges[1+addx] == 1) {
+                        tiles[x][y].edges[1+addx] = 0;
+                        tiles[x+addx][y].edges[1-addx] = 0;
+                    }                    
+                }
+                for(int addy=-1;addy <= 1;addy+=2) {
+                    if(isValidTile(x, y+addy) &&//valid
+                            tiles[x][y+addy] != null &&//not empty
+                            tiles[x][y+addy].edges[2-addy] == 1 && tiles[x][y].edges[2+addy] == 1) {
+                        tiles[x][y].edges[2+addy] = 0;
+                        tiles[x][y+addy].edges[2-addy] = 0;
+                    }
+                }   
+            }
+        }
+    }
+    /** */
+    public void renderEdges(ShapeRenderer g) {
+        g.begin(ShapeRenderer.ShapeType.FilledRectangle);
+        for(int x=0;x < tx;x++) {
+            for(int y=0;y< ty;y++) {
+                if(tiles[x][y] == null)
+                    continue;//skip
+                
+                //case for which side
+                for(int edgeIndex=0;edgeIndex < 4;edgeIndex++) {
+                    switch(tiles[x][y].edges[edgeIndex]) {
+                        case 0:
+                            g.setColor(1, 1, 1, 1);
+                            break;
+                        case 1:
+                            g.setColor(1, 0, 0, 1);
+                            break;
+                        case 2:
+                            g.setColor(.5f, .5f, .5f, 1);
+                            break;
+                    }
+                    
+                    switch(edgeIndex) {
+                        case 0:
+                            g.filledRect(tiles[x][y].pos.x, tiles[x][y].pos.y, 5, tsize);
+                            break;
+                        case 1:
+                            g.filledRect(tiles[x][y].pos.x, tiles[x][y].pos.y, tsize, 5);
+                            break;
+                        case 2:
+                            g.filledRect(tiles[x][y].pos.x + tsize - 5, tiles[x][y].pos.y, 5, tsize);
+                            break;
+                        case 3:
+                            g.filledRect(tiles[x][y].pos.x, tiles[x][y].pos.y + tsize - 5, tsize, 5);
+                            break;
+                    }
+                }
+            }
+        }
+        g.end();
     }
     
     /** render tilemap using shpren*/
     public void render(ShapeRenderer g) {
         for(int x=0;x < tx;x++) {
             for(int y=0;y< ty;y++) {
-                //maybe use continue here instead
-                if(tiles[x][y] != null) {
-                    Vector2[] tv = tiles[x][y].vertexes;
-                    if(tv.length == 3) {
-                        g.begin(ShapeRenderer.ShapeType.FilledTriangle);
-                        g.setColor(tcolor);
-                        g.translate((float)tiles[x][y].pos.x, (float)tiles[x][y].pos.y, 0);//reverse arrays crap;
-                        g.filledTriangle((float)tv[0].x, (float)tv[0].y, 
-                                         (float)tv[1].x, (float)tv[1].y, 
-                                         (float)tv[2].x, (float)tv[2].y);
-                        g.translate(-(float)tiles[x][y].pos.x, -(float)tiles[x][y].pos.y, 0);
-                        g.end();
-                    } else if(tv.length == 4) {
-                        g.begin(ShapeRenderer.ShapeType.FilledTriangle);
-                        g.setColor(tcolor);
-                        g.translate((float)tiles[x][y].pos.x, (float)tiles[x][y].pos.y, 0);//reverse arrays crap;
-                        g.filledTriangle((float)tv[0].x, (float)tv[0].y, 
-                                         (float)tv[1].x, (float)tv[1].y, 
-                                         (float)tv[3].x, (float)tv[3].y);
-                        g.filledTriangle((float)tv[1].x, (float)tv[1].y, 
-                                         (float)tv[3].x, (float)tv[3].y, 
-                                         (float)tv[2].x, (float)tv[2].y);
-                        g.translate(-(float)tiles[x][y].pos.x, -(float)tiles[x][y].pos.y, 0);
-                        g.end();
-                    }
+                if(tiles[x][y] == null)
+                    continue;//skip
                     
-                    
+                Vector2[] tv = tiles[x][y].vertexes;
+                if(tv.length == 3) {
+                    g.begin(ShapeRenderer.ShapeType.FilledTriangle);
+                    g.setColor(tcolor);
+                    g.translate((float)tiles[x][y].pos.x, (float)tiles[x][y].pos.y, 0);//reverse arrays crap;
+                    g.filledTriangle((float)tv[0].x, (float)tv[0].y, 
+                                     (float)tv[1].x, (float)tv[1].y, 
+                                     (float)tv[2].x, (float)tv[2].y);
+                    g.translate(-(float)tiles[x][y].pos.x, -(float)tiles[x][y].pos.y, 0);
+                    g.end();
+                } else if(tv.length == 4) {
+                    g.begin(ShapeRenderer.ShapeType.FilledTriangle);
+                    g.setColor(tcolor);
+                    g.translate((float)tiles[x][y].pos.x, (float)tiles[x][y].pos.y, 0);//reverse arrays crap;
+                    g.filledTriangle((float)tv[0].x, (float)tv[0].y, 
+                                     (float)tv[1].x, (float)tv[1].y, 
+                                     (float)tv[3].x, (float)tv[3].y);
+                    g.filledTriangle((float)tv[1].x, (float)tv[1].y, 
+                                     (float)tv[3].x, (float)tv[3].y, 
+                                     (float)tv[2].x, (float)tv[2].y);
+                    g.translate(-(float)tiles[x][y].pos.x, -(float)tiles[x][y].pos.y, 0);
+                    g.end();
                 }
             }
         }
         
     }
     
-    //processing version, to be used with PGraphics
-    /*public void render(PGraphics g) {
-        g.beginDraw();
-        //set colors and everthing here
-        //g.background(bgcolor);
-        //g.background(200);
-        //g.fill(tcolor);
-        g.fill(100);
-        g.noStroke();
-        
-        for(int x=0;x < tx;x++) {
-            for(int y=0;y< ty;y++) {
-                //maybe use continue here instead
-                if(tiles[x][y] != null) {
-                    g.pushMatrix();
-                    //println(loc.x + " " + loc.y);
-                    g.translate((float) tiles[x][y].pos.x, (float) tiles[x][y].pos.y);//reverse arrays crap;
-                    
-                    g.beginShape();
-                    //use tmap here not tiles because tiles has null sections
-                    
-                    for(int i=0;i < tiles[x][y].vertexes.length;i++) 
-                        g.vertex((float) tiles[x][y].vertexes[i].x, (float) tiles[x][y].vertexes[i].y);
-                    
-                    g.endShape();
-                    g.popMatrix();
-                }   
-            }
-        }
-        g.endDraw(); 
-    }*/
     /** converts char of mapData to Tile.Type*/
     //TODO combine the reference array and tiles maybe?
     public Tile.Type getTIleTypeFromChar(char c) {
         switch(c) {
-            case '0':
-                return Tile.Type.EMPTY;
             case '1':
                 return Tile.Type.FULL;
             case '2':
@@ -246,7 +292,8 @@ public class Tilemap {
             case 'H':
                 return Tile.Type.HF_TL_TRI_TR;
             default:
-                return Tile.Type.EMPTY;
+                //return Tile.Type.EMPTY;
+                return null;
         }
     }
 }

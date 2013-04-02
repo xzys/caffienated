@@ -25,7 +25,6 @@ public class World {
     public float width;
     public float height;
     private Vector2 gravity;
-    private Body bounds;
     //simplify things and make everythin in pixels
     
     /** Constructor: initializes fields
@@ -42,11 +41,6 @@ public class World {
         //TODO magic number? or just default I guess, put up there
         gravity = new Vector2(0, -.01f);
         //TODO actually use this and use EdgeCollision
-        bounds = new PolygonBody(false, 
-                new Vector2[]{new Vector2(0,0),
-                             new Vector2(0, width),
-                             new Vector2(0, height),
-                             new Vector2(width, height)});
     }
     /** set gravity*/
     public void setGravity(Vector2 gravity) {
@@ -92,7 +86,7 @@ public class World {
             checkBounds(b);
             if(b instanceof CircularBody) {
                 checkBroadphase(b);
-            }    
+            }  
             //projectile vs tilemap
             //need to do stepwise collisions based on velocity
             else if(b instanceof Projectile) {
@@ -188,59 +182,77 @@ public class World {
             if(cht != null) collisions.add(new Collision(b, cht));
         }*/
         
-        
-        
         //if this tile is not empty, add to collision
-        //empty tiles are null in the tilemap and alo null if not valid
+        //empty tiles are null in the tilemap and alo null if not valid tile
         if(chktiles[0] != null) { 
             collisions.add(new InsideCollision(b, chktiles[0]));
         }
         
         //if any of 6 edges are true, add special edge collision
-        //edges are l,d,ru
+        //edges are l,d,r,u
+        //if interesting do normal collision
         
         //in x
         if(chktiles[1] != null) { 
-            //if this is left, get the right edge
-            if(chktiles[1].edges[(int) (1 - quadrant.x)] == 1) {
-                collisions.add(new EdgeCollision(b, chktiles[1], (int) (1 - quadrant.x)));
-            } else {
+            //if this is left, get the right edge of tile
+            if (chktiles[1].edges[(int) (1 - quadrant.x)] == 2) {
                 collisions.add(new Collision(b, chktiles[1]));
+            } else if(chktiles[1].edges[(int) (1 - quadrant.x)] == 1) {
+                collisions.add(new EdgeCollision(b, chktiles[1], (int) (1 - quadrant.x)));
             }
         }
         //in y
         if(chktiles[2] != null) { 
-            //if this is above, get the bottom edge
-            if(chktiles[2].edges[(int) (2 - quadrant.y)] == 1) {
-                collisions.add(new EdgeCollision(b, chktiles[2], (int) (2 - quadrant.y)));
-            } else {
+            //if this is above, get the bottom edge of tile
+            if(chktiles[2].edges[(int) (2 - quadrant.y)] == 2) {
                 collisions.add(new Collision(b, chktiles[2]));
+            } else if(chktiles[2].edges[(int) (2 - quadrant.y)] == 1) {
+                collisions.add(new EdgeCollision(b, chktiles[2], (int) (2 - quadrant.y)));
+             
             }
-        }
-        
-        //this is a somewhat special case
-        //basically means you are inside voronoi region the diagonal tile
-        if(chktiles[3] != null) { 
-            //if the edge that is facing you  is true
-            //                          horizontal                                        vertical
-            if(chktiles[3].edges[(int) (1 - quadrant.x)] == 1 || chktiles[3].edges[(int) (2 - quadrant.y)] == 1) {
-                //at least one solid, project from corner
-                //bottom left = 0, clockwise
-                //collisions.add(new CornerCollision(b, chktiles[3], quadrant.cpy().mul(-tilemap.tsize)));
-                
-                collisions.add(new CornerCollision(b, chktiles[3], 
-                        quadrant.cpy().mul(tilemap.tsize * -.5f).add(tilemap.tsize * .5f, tilemap.tsize *.5f)));
-                
-            //interesting edges? do full collision
-            //the edges might be on the opposite side that you are on
-            } else if(chktiles[3].edges[(int) (1 - quadrant.x)] == 2 || chktiles[3].edges[(int) (2 - quadrant.y)] == 2) {
+        }        
+        //this basically means you are inside voronoi region the diagonal tile
+        if(chktiles[3] != null) {
+            //if either is interesting do normal collision
+            //otherwise do edge collision or double edge collision(corner)
+            
+            if(chktiles[3].edges[(int) (1 - quadrant.x)] == 2 || chktiles[3].edges[(int) (2 - quadrant.y)] == 2) {
                 collisions.add(new Collision(b, chktiles[3]));
             } else {
-                //no collision
-                //there are no interesting or solid sides facing you
-                //basically impossible bc these are only triangles at best
+                collisions.add(new CornerCollision(b, chktiles[3], quadrant.cpy().mul(-1)));
             }
+            
+            /*
+            if(chktiles[3].edges[(int) (1 - quadrant.x)] == 2 || chktiles[3].edges[(int) (2 - quadrant.y)] == 2) {
+                collisions.add(new Collision(b, chktiles[3]));
+            } else if(chktiles[3].edges[(int) (1 - quadrant.x)] == 1 && chktiles[3].edges[(int) (2 - quadrant.y)] == 1) {
+                collisions.add(new CornerCollision(b, chktiles[3], quadrant.cpy().mul(-1)));
+            } else if(chktiles[3].edges[(int) (1 - quadrant.x)] == 1 && chktiles[3].edges[(int) (2 - quadrant.y)] == 0) {
+                collisions.add(new EdgeCollision(b, chktiles[3], (int) (1 - quadrant.x)));
+            } else if(chktiles[3].edges[(int) (1 - quadrant.x)] == 0 && chktiles[3].edges[(int) (2 - quadrant.y)] == 1) {
+                collisions.add(new EdgeCollision(b, chktiles[3], (int) (2 - quadrant.y)));
+            } else {
+                //TODO delete this does nothing man
+                assert !(chktiles[3].edges[(int) (1 - quadrant.x)] == 0 && chktiles[3].edges[(int) (2 - quadrant.y)] == 0);
+            }*/
         }
+    }
+    
+    /** renders the 4 neighboring tiles to the player giver */
+    public void renderActiveTiles(ShapeRenderer shpren, Player player) {
+        shpren.begin(ShapeRenderer.ShapeType.Rectangle);
+        shpren.setColor(0, 0, 0, 1);
+        
+        Vector2 fpos = player.sprite.pos.cpy().add(player.sprite.vel);
+        Vector2 current = new Vector2((int) (fpos.x/tilemap.tsize), (int) (fpos.y/tilemap.tsize));
+        Vector2 quadrant = new Vector2((fpos.x - current.x*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1,
+                                       (fpos.y - current.y*tilemap.tsize < tilemap.tsize*.5) ? -1 : 1);
+        
+        shpren.rect(current.x * tilemap.tsize, current.y * tilemap.tsize, tilemap.tsize, tilemap.tsize);
+        shpren.rect((current.x + quadrant.x) * tilemap.tsize, current.y * tilemap.tsize, tilemap.tsize, tilemap.tsize);
+        shpren.rect(current.x * tilemap.tsize, (current.y + quadrant.y) * tilemap.tsize, tilemap.tsize, tilemap.tsize);
+        shpren.rect((current.x + quadrant.x) * tilemap.tsize, (current.y + quadrant.y) * tilemap.tsize, tilemap.tsize, tilemap.tsize);
+        shpren.end();
     }
     
     /** render all the collisions with shpren*/
@@ -270,7 +282,7 @@ public class World {
                 case "game.CornerCollision":
                     shpren.setColor(0, 0, 0, 1);
                     shpren.filledRect(c.body2.pos.x + tilemap.tsize*.5f, c.body2.pos.y + tilemap.tsize*.5f,
-                            ((CornerCollision)c).corner.x - 25, ((CornerCollision)c).corner.y - 25);
+                            ((CornerCollision)c).corner.x*25, ((CornerCollision)c).corner.y*25);
                     shpren.setColor(0, 0, 1, .5f);
                     break;
                 default:
@@ -308,14 +320,14 @@ public class World {
         //TODO no need to add collisions unless the thing in question is close to edge
         //do edge collision but check outside of box and also opposite axes
         if(b.pos.x*2 < width)
-            collisions.add(new BoundsCollision(b, bounds, 1));
+            collisions.add(new EdgeCollision(b, tilemap.bounds[0], 2));
         else
-            collisions.add(new BoundsCollision(b, bounds, 0));
+            collisions.add(new EdgeCollision(b, tilemap.bounds[2], 0));
         
         if(b.pos.y*2 < height)
-            collisions.add(new BoundsCollision(b, bounds, 3));
+            collisions.add(new EdgeCollision(b, tilemap.bounds[1], 3));
         else
-            collisions.add(new BoundsCollision(b, bounds, 2));
+            collisions.add(new EdgeCollision(b, tilemap.bounds[3], 1));
     }
     
 }

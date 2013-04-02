@@ -73,15 +73,15 @@ public class Player {//
     }
     /** renders the sprite with Animator*/
     public void render(SpriteBatch batch) {
-        animator.render(batch, sprite.pos, sprite.state, sprite.direction, sprite.rotation, (float)sprite.stateTime*80, 50);
-        //animator.render(batch, ptwtrans.sum(sprite.pos), 0, -1* sprite.direction, (float)sprite.stateTime, 45);
+        //TODO magic numbers
+        //animator.render(batch, sprite.pos, sprite.state, sprite.direction, sprite.rotation, (float)sprite.stateTime*80, 50);
+        animator.render(batch, sprite.pos, sprite.state, sprite.direction, 0, sprite.stateTime*80f, sprite.radius * 2);
     }
     /** simple rendering where colors represnet different sprite states*/
     public void render_debug(ShapeRenderer g) {
         g.begin(ShapeRenderer.ShapeType.FilledCircle);
         g.setColor(sprite.state/5f, sprite.state/5f, sprite.state/5f, .1f);
         g.filledCircle((float) sprite.pos.x, (float) sprite.pos.y, (float) sprite.consts.get("radius"));
-        
         g.end();
         
         //all lines here

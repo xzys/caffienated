@@ -1,6 +1,6 @@
 //how much of joystick movement to ignore
 deadzone = 0.0
-radius = 25
+radius = 20
 
 //how much to add to walk
 walk_impulse = .2

@@ -51,14 +51,27 @@ public class Collision {
         if(body1 instanceof CircularBody && body2 instanceof CircularBody) {
             axes = new Vector2[1];
             axes[0] = body1.pos.cpy().sub(body2.pos).nor();
-        } else if(body1 instanceof Sprite && body2 instanceof Tile) {
-            axes = new Vector2[3];
+        } else if(body1 instanceof Sprite && body2 instanceof Tile) {//size constraints
+            //TODO optimize this urgently
+            //it's because you dont know what voronoi region you're in
+            axes = new Vector2[3 + ((PolygonBody)body2).vertexes.length];
             //use the precalculated normals here
             //make sure that you are suing the correct normals because it matters if they are positive/negative 
             axes[0] = ((Tile)body2).getNormal();
             axes[1] = body1.pos.x > body2.pos.x + 25 ? new Vector2(1, 0) : new Vector2(-1, 0);
             axes[2] = body1.pos.y > body2.pos.y + 25 ? new Vector2(0, 1) : new Vector2(0, -1);
-        } else {
+            
+            for(int i=0;i < ((PolygonBody)body2).vertexes.length;i++) {
+                Vector2 vertex = ((PolygonBody)body2).vertexes[i];
+                //for each absolute axis
+                axes[3 + i] = body1.pos.cpy().sub(
+                                    body2.pos.cpy().add(vertex))
+                                    .nor();
+            }
+            
+            
+            
+        } else {//default
             //circular Body return 0 axes here
             Vector2[] body1axes = getNormals(body1);
             Vector2[] body2axes = getNormals(body2);

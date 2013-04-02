@@ -83,7 +83,7 @@ public class Animator {
         currentFrame = animations[state].getKeyFrame(stateTime, true);
         batch.begin();
         batch.draw(currentFrame, 
-                (float)(translate.x + direction*radius*.5), (float)(translate.y - radius*.5) + radius - 50,
+                (float)(translate.x + direction*radius*.5), (float)(translate.y - radius*.5) + radius - 40,
                 0, 0,
                 -direction*radius, radius,
                 1, 1,

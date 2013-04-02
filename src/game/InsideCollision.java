@@ -30,22 +30,17 @@ public class InsideCollision extends Collision {
      */
     @Override
     protected Vector2[] generateAxes() {
-        //you have to catch the exception if this is not true
-        //just a reference
-        //TODO can you get rid of this? maybe with assert?
-        Tile tile = (Tile)body2;
-        //doesn't really have a normal
-        if(tile.type == Tile.Type.FULL) {
+        assert body2 instanceof Tile;
+        //FULL doesn't really have a normal
+        if(((Tile)body2).type == Tile.Type.FULL) {
             axes = new Vector2[2];
             //choose axes that project the correct way
             axes[0] = body1.pos.x > body2.pos.x + 25 ? new Vector2(1, 0) : new Vector2(-1, 0);
             axes[1] = body1.pos.y > body2.pos.y + 25 ? new Vector2(0, 1) : new Vector2(0, -1);
         } else {
-            axes = new Vector2[1];
             //check against aleady calculated normal of polygon triangle side + x + y axis
             //you don't really need to try against the x y axes if ou alreay know that you are inside this tile
-            axes[0] = tile.getNormal();//perpendicular to angle
-            
+            axes = new Vector2[]{((Tile)body2).getNormal()};//perpendicular to angle
         }
         return axes;
     }
