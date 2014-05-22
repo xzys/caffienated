@@ -8,11 +8,13 @@ var tiles = {};
 
 var cursors;
 
+var fps;
+
 var main_state = {
 	preload : function() {
 		game.load.tilemap('map', 'assets/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
-    	game.load.image('tiles', 'assets/ninja-tiles32.png');
-	    game.load.image('player', 'assets/default.png');
+		game.load.image('tiles', 'assets/ninja-tiles32.png');
+		game.load.image('player', 'assets/default.png');
 	},
 
 	create: function() {
@@ -31,6 +33,8 @@ var main_state = {
 		var slopemap = { '2' : 1, '3' : 2 };
 		var t = game.physics.ninja.convertTilemap(tilemap, layer, slopemap);
 
+		// making a dictionary of tiles that do exist
+		// because getTile returns a Phaesr.Tile, not a Phaser.Physics.Ninja.Tile
 		for(var i=0;i < t.length;i++) {
 			var gx = (t[i].x - 16) / 32;
 			var gy = (t[i].y - 16) / 32;
@@ -43,14 +47,32 @@ var main_state = {
 		for(var i = 0;i < players.length;i++) {
 			game.physics.ninja.enableCircle(players[i], players[i].width / 2);
 			players[i].body.bounce = 0;
+			// additional 
+			players[i]['state'] = STANDING;
 		}
 
-		cursors = game.input.keyboard.createCursorKeys();
+		players[0]['consts'] = {'run' : 5,
+								'stop' : 8,
+								'air_walk': 3,
+								'max_vel' : 90,
+								'deadzone' : 1,
+								'jump' : 300,
+								'wall_jump' : 150,
+								'mid_jump' : 5}
+
+		fps = game.add.text(10, 10, "", {font: '12px Courier New',
+										    fill: '#fff' });
 		
+		game.time.advancedTiming = true;
+
+		cursors = game.input.keyboard.createCursorKeys();
+		Phaser.Time.advancedTiming = true;
 	},
 
 	update: function() {
 		// TODO only ones that are in vicinity;
+		fps.setText('FPS: ' + game.time.fps);
+		
 		for(var i = 0;i < players.length;i++) {
 
 			// which tile the player is in
@@ -67,7 +89,6 @@ var main_state = {
 			check_tiles[1] = tiles[(tilex + kx) + "," + (tiley)];
 			check_tiles[2] = tiles[(tilex) + "," + (tiley  + ky)];
 			check_tiles[3] = tiles[(tilex + kx) + "," + (tiley + ky)];
-
 			
 			for(var j = 0;j < check_tiles.length; j++) {
 				if(check_tiles[j]) {
@@ -76,22 +97,218 @@ var main_state = {
 			}
 		}
 
+		/*
+		console.log(players[0].x);
+
 		// MOVEMENT
 		if (cursors.left.isDown) {
-	        players[0].body.moveLeft(20);
-	    }
-	    else if (cursors.right.isDown) {
-	        players[0].body.moveRight(20);
-	    }
+			players[0].body.moveLeft(20);
+		}
+		else if (cursors.right.isDown) {
+			players[0].body.moveRight(20);
+		}
 
-	    if (cursors.up.isDown && players[0].body.touching.down) {
-	        players[0].body.moveUp(20);
-	    }
-	    else if (cursors.down.isDown) {
-	        players[0].body.moveDown(20);
-	    }
+		if (cursors.up.isDown) {
+			players[0].body.moveUp(500);
+		}
+		else if (cursors.down.isDown) {
+			players[0].body.moveDown(20);
+		}
+
+		*/
+		processState(players[0]);
+		// console.log(players[0].state);
 	}
 }
 
+var STANDING = 0;
+var MIDAIR = 1;
+var JUMPING = 2;
+var ROOT2_REC = 1 / 1.44;
+
+// play animations as they are needed
+function switchAnimations(player, anim) {
+
+}
+
+function processState(player) {
+	switch(player.state) {
+		case STANDING:
+			if(player.body.touching.down || player.body.wasTouching.down) {
+				if(cursors.up.isDown) {
+					console.log('a');
+					player.body.moveUp(player.consts.jump);
+					player.state = JUMPING;
+					return;
+				}
+
+				if(cursors.right.isDown) {
+					console.log('b');
+					if(player.body.velocity.x > 0) {
+						// play running
+						if(player.body.velocity.x < player.consts.max_vel) {
+							player.body.moveRight(player.consts.run);
+						}
+					} else {
+						// play skidding frame
+						player.body.moveRight(player.consts.stop);
+					}
+				} else if(cursors.left.isDown) {
+					console.log('c');
+					if(player.body.velocity.x < 0) {
+						// play running
+						if(player.body.velocity.x > player.consts.max_vel * -1) {
+							player.body.moveLeft(player.consts.run);
+						}
+					} else {
+						// play skidding frame
+						player.body.moveLeft(player.consts.run);
+					}
+				}
+
+				// no need to apply impulse because physics takes care of it
+				// just change animation frame, dont skid
+				if(player.body.velocity.x > player.consts.deadzone) {
+					// play skidding frame
+				} else if(player.body.velocity.x < player.consts.deadzone * -1) {
+					// play skidding frame left
+				}
+			} else {
+				console.log('d');
+				// falling
+				player.state = MIDAIR;
+			}
+			break;
+		case JUMPING:
+			if(player.body.touching.none  || player.body.wasTouching.none) {
+				// holding jump
+				if(cursors.up.isDown) {
+					player.body.moveUp(player.consts.mid_jump);
+				} else {
+					// cancel jump
+					player.state = MIDAIR;
+				}
+
+				if(cursors.right.isDown) {
+					player.body.moveRight(player.consts.air_walk);
+				} else if(cursors.left.isDown) {
+					player.body.moveLeft(player.consts.air_walk);
+				}
+				// no need to cancel time based because eventually vely == 0
+			} else {
+				player.state = MIDAIR;
+			}
+			break;
+		case MIDAIR:
+			if(player.body.touching.right || player.body.wasTouching.right) {
+				if(cursors.right.isDown) {
+					// setState(player, WALLRIDING;
+
+					// set player friction here
+					// play wallriding frame
+				} else {
+					// play falling frame
+				}
+
+				// walljump
+				if(cursors.up.isDown) {
+					player.body.moveUp(player.consts.wall_jump);
+					player.body.moveLeft(player.consts.wall_jump);
+				}
+
+			} else if(player.body.touching.left || player.body.wasTouching.left) {
+				if(cursors.left.isDown) {
+					// setState(player, WALLRIDING;
+					
+					// set player friction here
+					// play wallriding frame
+				} else {
+					// play falling frame
+				}
+
+				// walljump	
+				if(cursors.up.isDown) {
+					player.body.moveUp(player.consts.wall_jump);
+					player.body.moveRight(player.consts.wall_jump);
+					player.state = MIDAIR;
+				}
+
+			} else if(player.body.touching.down || player.body.wasTouching.down) {
+				player.state = STANDING;
+			} else {// really midair
+				if(cursors.right.isDown) {
+					player.body.moveRight(player.consts.air_walk);
+				} else if(cursors.left.isDown) {
+					player.body.moveLeft(player.consts.air_walk);
+				}
+			}
+			break;
+	}
+}
+
+/* case STANDING:
+			if(player.body.touching.down) {
+				if(cursors.up.isDown) {
+					player.body.moveUp(player.consts.jump);
+					setState(player, JUMPING;
+					return;
+				}
+
+				if(cursors.right.isDown) {
+					player.body.moveRight(player.consts.run);
+					setState(player, RUNNING;
+				} else if(cursors.left.isDown) {
+					player.body.moveLeft(player.consts.run);
+					setState(player, RUNNING;
+				} else if(Math.abs(player.body.velocity.x) > player.consts.deadzone) {
+					// no need to apply impulse because physics takes care of it
+					// just change animation frame, dont skid
+					setState(player, SKIDDING);
+				}
+			} else {
+				// falling
+				setState(player, MIDAIR);
+			}
+		case RUNNING:
+			if(player.body.touching.down) {
+				if(cursors.up.isDown) {
+					player.body.moveUp(player.consts.jump);
+					setState(player, JUMPING;
+					return;
+				}
+
+
+
+				if(player.body.velocity > 0) {
+					if(cursors.right.isDown) {
+						player.body.moveRight(player.consts.run);
+					} else if(cursors.left.isDown) {
+						player.body.moveLeft(player.consts.run);
+						setState(player, SKIDDING);
+					}
+				} else {
+					if(cursors.left.isDown) {
+						player.body.moveLeft(player.consts.run);
+					} else if(cursors.right.isDown) {
+						player.body.moveRight(player.consts.run);
+						setState(player, SKIDDING);
+					}
+				}
+			} else {
+				// falling
+				setState(player, MIDAIR);
+			}
+		case SKIDDING:
+*/
+
 game.state.add('main', main_state);
 game.state.start('main');
+
+
+var STANDING = 0;
+var MIDAIR = 1;
+var JUMPING = 2;
+var RUNNING = 3;
+var SKIDDING = 4;
+var WALLRIDING = 5;
+
