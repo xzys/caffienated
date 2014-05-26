@@ -50,15 +50,14 @@ var main_state = {
 			// additional 
 			players[i]['state'] = STANDING;
 		}
-
-		players[0]['consts'] = {'run' : 5,
+		players[0]['consts'] = {'run' : 15,
 								'stop' : 8,
-								'air_walk': 3,
+								'air_walk': 10,
 								'max_vel' : 90,
 								'deadzone' : 1,
-								'jump' : 300,
-								'wall_jump' : 150,
-								'mid_jump' : 5}
+								'jump' : 250,
+								'wall_jump' : 100,
+								'mid_jump' : 2}
 
 		fps = game.add.text(10, 10, "", {font: '12px Courier New',
 										    fill: '#fff' });
@@ -76,14 +75,13 @@ var main_state = {
 		for(var i = 0;i < players.length;i++) {
 
 			// which tile the player is in
-			var check_tiles = [];
 			
-			var px = players[0].x + players[0].deltaX;
-			var py = players[0].y + players[0].deltaY;
-			var tilex = Math.floor(px / 32);
-			var tiley = Math.floor(py / 32);
-			var kx = px % 32 > 16 ? 1 : -1;
-			var ky = py % 32 > 16 ? 1 : -1;
+			px = players[0].x + players[0].deltaX;
+			py = players[0].y + players[0].deltaY;
+			tilex = Math.floor(px / 32);
+			tiley = Math.floor(py / 32);
+			kx = px % 32 > 16 ? 1 : -1;
+			ky = py % 32 > 16 ? 1 : -1;
 
 			check_tiles[0] = tiles[(tilex) + "," + (tiley)];
 			check_tiles[1] = tiles[(tilex + kx) + "," + (tiley)];
@@ -97,34 +95,16 @@ var main_state = {
 			}
 		}
 
-		/*
-		console.log(players[0].x);
-
 		// MOVEMENT
-		if (cursors.left.isDown) {
-			players[0].body.moveLeft(20);
-		}
-		else if (cursors.right.isDown) {
-			players[0].body.moveRight(20);
-		}
-
-		if (cursors.up.isDown) {
-			players[0].body.moveUp(500);
-		}
-		else if (cursors.down.isDown) {
-			players[0].body.moveDown(20);
-		}
-
-		*/
 		processState(players[0]);
 		// console.log(players[0].state);
 	}
 }
-
+var px, py, tilex, tiley, kx, ky;
+var check_tiles = [];
 var STANDING = 0;
 var MIDAIR = 1;
 var JUMPING = 2;
-var ROOT2_REC = 1 / 1.44;
 
 // play animations as they are needed
 function switchAnimations(player, anim) {
@@ -136,14 +116,12 @@ function processState(player) {
 		case STANDING:
 			if(player.body.touching.down || player.body.wasTouching.down) {
 				if(cursors.up.isDown) {
-					console.log('a');
 					player.body.moveUp(player.consts.jump);
 					player.state = JUMPING;
 					return;
 				}
 
 				if(cursors.right.isDown) {
-					console.log('b');
 					if(player.body.velocity.x > 0) {
 						// play running
 						if(player.body.velocity.x < player.consts.max_vel) {
@@ -154,7 +132,6 @@ function processState(player) {
 						player.body.moveRight(player.consts.stop);
 					}
 				} else if(cursors.left.isDown) {
-					console.log('c');
 					if(player.body.velocity.x < 0) {
 						// play running
 						if(player.body.velocity.x > player.consts.max_vel * -1) {
@@ -174,7 +151,6 @@ function processState(player) {
 					// play skidding frame left
 				}
 			} else {
-				console.log('d');
 				// falling
 				player.state = MIDAIR;
 			}
@@ -246,69 +222,21 @@ function processState(player) {
 	}
 }
 
-/* case STANDING:
-			if(player.body.touching.down) {
-				if(cursors.up.isDown) {
-					player.body.moveUp(player.consts.jump);
-					setState(player, JUMPING;
-					return;
-				}
+function backup_process_state(player) {
+	if (cursors.left.isDown) {
+		players[0].body.moveLeft(20);
+	}
+	else if (cursors.right.isDown) {
+		players[0].body.moveRight(20);
+	}
 
-				if(cursors.right.isDown) {
-					player.body.moveRight(player.consts.run);
-					setState(player, RUNNING;
-				} else if(cursors.left.isDown) {
-					player.body.moveLeft(player.consts.run);
-					setState(player, RUNNING;
-				} else if(Math.abs(player.body.velocity.x) > player.consts.deadzone) {
-					// no need to apply impulse because physics takes care of it
-					// just change animation frame, dont skid
-					setState(player, SKIDDING);
-				}
-			} else {
-				// falling
-				setState(player, MIDAIR);
-			}
-		case RUNNING:
-			if(player.body.touching.down) {
-				if(cursors.up.isDown) {
-					player.body.moveUp(player.consts.jump);
-					setState(player, JUMPING;
-					return;
-				}
-
-
-
-				if(player.body.velocity > 0) {
-					if(cursors.right.isDown) {
-						player.body.moveRight(player.consts.run);
-					} else if(cursors.left.isDown) {
-						player.body.moveLeft(player.consts.run);
-						setState(player, SKIDDING);
-					}
-				} else {
-					if(cursors.left.isDown) {
-						player.body.moveLeft(player.consts.run);
-					} else if(cursors.right.isDown) {
-						player.body.moveRight(player.consts.run);
-						setState(player, SKIDDING);
-					}
-				}
-			} else {
-				// falling
-				setState(player, MIDAIR);
-			}
-		case SKIDDING:
-*/
+	if (cursors.up.isDown) {
+		players[0].body.moveUp(500);
+	}
+	else if (cursors.down.isDown) {
+		players[0].body.moveDown(20);
+	}
+}
 
 game.state.add('main', main_state);
 game.state.start('main');
-
-
-var STANDING = 0;
-var MIDAIR = 1;
-var JUMPING = 2;
-var RUNNING = 3;
-var SKIDDING = 4;
-var WALLRIDING = 5;
-
