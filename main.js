@@ -12,9 +12,12 @@ var fps;
 
 var main_state = {
 	preload : function() {
-		game.load.tilemap('map', 'assets/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
+		game.load.tilemap('map', 'assets/tilemap2.json', null, Phaser.Tilemap.TILED_JSON);
 		game.load.image('tiles', 'assets/ninja-tiles32.png');
 		game.load.image('player', 'assets/default.png');
+
+
+		game.load.spritesheet('gorilla', 'assets/gorilla_stand.png', 68, 64);
 	},
 
 	create: function() {
@@ -25,7 +28,7 @@ var main_state = {
 		tilemap.addTilesetImage('ninja-tiles32', 'tiles');
 
 		layer = tilemap.createLayer('Tile Layer 1');
-		// layer.debug = true;
+		// layer.debug = true;+
 		layer.resizeWorld();
 		tilemap.setCollisionBetween(1, 32);
 		
@@ -42,22 +45,24 @@ var main_state = {
 		}
 		
 		players = []
-		players.push(game.add.sprite(50, 50, 'player'));
+		players.push(game.add.sprite(50, 50, 'gorilla'));
 		
 		for(var i = 0;i < players.length;i++) {
 			game.physics.ninja.enableCircle(players[i], players[i].width / 2);
 			players[i].body.bounce = 0;
+			console.log(players[i].body.friction);
 			// additional 
 			players[i]['state'] = STANDING;
 		}
 		players[0]['consts'] = {'run' : 15,
-								'stop' : 8,
+								'stop' : 30,
 								'air_walk': 10,
 								'max_vel' : 90,
 								'deadzone' : 1,
-								'jump' : 250,
-								'wall_jump' : 100,
-								'mid_jump' : 2}
+								'jump' : 300,
+								'wall_jump_y' : 250,
+								'wall_jump_x' : 200,
+								'mid_jump' : 5}
 
 		fps = game.add.text(10, 10, "", {font: '12px Courier New',
 										    fill: '#fff' });
@@ -70,7 +75,6 @@ var main_state = {
 
 	update: function() {
 		// TODO only ones that are in vicinity;
-		fps.setText('FPS: ' + game.time.fps);
 		
 		for(var i = 0;i < players.length;i++) {
 
@@ -97,6 +101,8 @@ var main_state = {
 
 		// MOVEMENT
 		processState(players[0]);
+		// fps.setText('FPS: ' + game.time.fps);
+		fps.setText('speed: ' + players[0].body.deltaX());
 		// console.log(players[0].state);
 	}
 }
@@ -139,7 +145,7 @@ function processState(player) {
 						}
 					} else {
 						// play skidding frame
-						player.body.moveLeft(player.consts.run);
+						player.body.moveLeft(player.consts.stop);
 					}
 				}
 
@@ -188,8 +194,9 @@ function processState(player) {
 
 				// walljump
 				if(cursors.up.isDown) {
-					player.body.moveUp(player.consts.wall_jump);
-					player.body.moveLeft(player.consts.wall_jump);
+					player.body.setZeroVelocity();
+					player.body.moveUp(player.consts.wall_jump_y);
+					player.body.moveLeft(player.consts.wall_jump_x);
 				}
 
 			} else if(player.body.touching.left || player.body.wasTouching.left) {
@@ -204,8 +211,9 @@ function processState(player) {
 
 				// walljump	
 				if(cursors.up.isDown) {
-					player.body.moveUp(player.consts.wall_jump);
-					player.body.moveRight(player.consts.wall_jump);
+					player.body.setZeroVelocity();
+					player.body.moveUp(player.consts.wall_jump_y);
+					player.body.moveRight(player.consts.wall_jump_x);
 					player.state = MIDAIR;
 				}
 
@@ -222,7 +230,7 @@ function processState(player) {
 	}
 }
 
-function backup_process_state(player) {
+function backup_processState(player) {
 	if (cursors.left.isDown) {
 		players[0].body.moveLeft(20);
 	}

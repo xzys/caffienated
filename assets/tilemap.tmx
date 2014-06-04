@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="ninja-tiles32" tilewidth="32" tileheight="32">
-  <image source="../../phaser-examples-master/examples/assets/physics/ninja-tiles32.png" width="512" height="96"/>
+  <image source="ninja-tiles32.png" width="512" height="96"/>
  </tileset>
  <layer name="Tile Layer 1" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2DoAaYRaB4zlc1Dxsw4xCnBzFQ2j9phOgooBwDXuABo
+   eJy9k1EKwDAIQ+3a+5957KMwXGKqyAL5aetT0Zr1aLzcyevSX7xqniiuwvQx074zyjARb7p79C7LU8xheNdQXsZk9vUhIabiqtmis+1FOCoOeREe67/KYn0+9nt4Ule0T2gWkdS/3TVmmZlcVXWwrmbfKI4A6A==
   </data>
  </layer>
 </map>
